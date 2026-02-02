@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethereum Election</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="script.js" defer></script>
+    <!-- add favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-pattern"></div>
+    
+    <!-- Header Hero Section -->
+    <header class="hero">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="eth-logo">
+                        <i class="fab fa-ethereum"></i>
+                    </div>
+                    <div>
+                        <h1>Ethereum Election</h1>
+                        <p class="subtitle">Decentralized Governance Platform</p>
+                    </div>
+                </div>
+                <div class="wallet-info">
+                    <button id="connect-button" class="btn-primary" onclick="connectWallet()">
+                        <i class="fas fa-link"></i>
+                        Connect Wallet
+                    </button>
+                    <div id="wallet-address" class="wallet-address" style="display: none;">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="address-text"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Wallet Connection Section -->
+    <!-- <section class="wallet-section">
+        <div class="container">
+            <div class="glass-card wallet-card">
+                <div class="card-header">
+                    <i class="fas fa-wallet icon-accent"></i>
+                    <h2>Wallet Connection</h2>
+                </div>
+                <div class="wallet-info">
+                    <button id="connect-button" class="btn-primary" onclick="connectWallet()">
+                        <i class="fas fa-link"></i>
+                        Connect Wallet
+                    </button>
+                    <div id="wallet-status" class="status-badge disconnected">
+                        <i class="fas fa-circle pulse"></i>
+                        Not Connected
+                    </div>
+                    <div id="wallet-address" class="wallet-address" style="display: none;">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="address-text"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <!-- Election Status Dashboard -->
+    <section id="status-section" class="status-section">
+        <div class="container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line icon-accent"></i>
+                    <h2>Election Status</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">System Type</span>
+                            <span id="election-system" class="stat-value">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-power-off"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Status</span>
+                            <span id="election-status" class="stat-value">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Registered Voters</span>
+                            <span id="total-registered" class="stat-value">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-vote-yea"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Votes Cast</span>
+                            <span id="total-cast" class="stat-value">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="voter-status-bar">
+                    <div class="voter-status-info">
+                        <span class="label">Your Status:</span>
+                        <span id="voter-status" class="status-badge">Not Registered</span>
+                        <span id="has-voted" class="vote-indicator"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Voter Registration Section -->
+    <section id="registration-section" class="registration-section">
+        <div class="container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <i class="fas fa-user-plus icon-accent"></i>
+                    <h2>Voter Registration</h2>
+                </div>
+                <div class="form-content">
+                    <p class="form-description">Register to participate in the election. Your registration will be verified by the registrar.</p>
+                    <div class="form-group">
+                        <label for="reg-id">
+                            <i class="fas fa-id-card"></i>
+                            Voter ID Card Number
+                        </label>
+                        <input 
+                            id="reg-id" 
+                            type="text" 
+                            placeholder="Enter your ID card number"
+                            aria-label="Voter ID card number"
+                        >
+                    </div>
+                    <button class="btn-primary" onclick="registerVoter()">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Registration
+                    </button>
+                    <p class="help-text">
+                        <i class="fas fa-info-circle"></i>
+                        Your registration status will update automatically after registrar verification.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Voting Section -->
+    <section id="vote-section" class="vote-section" style="display:none;">
+        <div class="container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <i class="fas fa-vote-yea icon-accent"></i>
+                    <h2>Cast Your Vote</h2>
+                </div>
+                <div class="form-content">
+                    <div class="form-group">
+                        <label for="vote-id">
+                            <i class="fas fa-shield-alt"></i>
+                            Verify Your Identity
+                        </label>
+                        <input 
+                            id="vote-id" 
+                            type="text" 
+                            placeholder="Enter your ID card number to verify"
+                            aria-label="Voter ID for verification"
+                        >
+                    </div>
+
+                    <!-- FPTP/Proportional Voting -->
+                    <div id="vote-form-fptp" class="vote-form" style="display:none;">
+                        <h3 class="form-subtitle">Select Your Candidate</h3>
+                        <div class="candidates-grid">
+                            <div class="candidate-card" data-value="1">
+                                <input type="radio" name="candidate" value="1" id="candidate-1">
+                                <label for="candidate-1">
+                                    <div class="candidate-icon">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div class="candidate-info">
+                                        <h4>Candidate 1</h4>
+                                        <p>Progressive Platform</p>
+                                    </div>
+                                    <div class="radio-indicator"></div>
+                                </label>
+                            </div>
+                            <div class="candidate-card" data-value="2">
+                                <input type="radio" name="candidate" value="2" id="candidate-2">
+                                <label for="candidate-2">
+                                    <div class="candidate-icon">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div class="candidate-info">
+                                        <h4>Candidate 2</h4>
+                                        <p>Economic Focus</p>
+                                    </div>
+                                    <div class="radio-indicator"></div>
+                                </label>
+                            </div>
+                            <div class="candidate-card" data-value="3">
+                                <input type="radio" name="candidate" value="3" id="candidate-3">
+                                <label for="candidate-3">
+                                    <div class="candidate-icon">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div class="candidate-info">
+                                        <h4>Candidate 3</h4>
+                                        <p>Environmental Agenda</p>
+                                    </div>
+                                    <div class="radio-indicator"></div>
+                                </label>
+                            </div>
+                            <div class="candidate-card" data-value="4">
+                                <input type="radio" name="candidate" value="4" id="candidate-4">
+                                <label for="candidate-4">
+                                    <div class="candidate-icon">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div class="candidate-info">
+                                        <h4>Candidate 4</h4>
+                                        <p>Social Reform</p>
+                                    </div>
+                                    <div class="radio-indicator"></div>
+                                </label>
+                            </div>
+                            <div class="candidate-card" data-value="5">
+                                <input type="radio" name="candidate" value="5" id="candidate-5">
+                                <label for="candidate-5">
+                                    <div class="candidate-icon">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div class="candidate-info">
+                                        <h4>Candidate 5</h4>
+                                        <p>Innovation Platform</p>
+                                    </div>
+                                    <div class="radio-indicator"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instant Runoff Voting -->
+                    <div id="vote-form-irv" class="vote-form" style="display:none;">
+                        <h3 class="form-subtitle">Rank Candidates by Preference</h3>
+                        <p class="help-text ranking-help">
+                            <i class="fas fa-arrows-alt"></i>
+                            Drag and drop candidates to rank them (top = most preferred)
+                        </p>
+                        <ul id="irv-list" class="sortable-list">
+                            <li draggable="true" data-candidate="1">
+                                <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                                <div class="candidate-rank-info">
+                                    <i class="fas fa-user-tie"></i>
+                                    <span>Candidate 1</span>
+                                </div>
+                                <div class="rank-badge">1</div>
+                            </li>
+                            <li draggable="true" data-candidate="2">
+                                <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                                <div class="candidate-rank-info">
+                                    <i class="fas fa-user-tie"></i>
+                                    <span>Candidate 2</span>
+                                </div>
+                                <div class="rank-badge">2</div>
+                            </li>
+                            <li draggable="true" data-candidate="3">
+                                <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                                <div class="candidate-rank-info">
+                                    <i class="fas fa-user-tie"></i>
+                                    <span>Candidate 3</span>
+                                </div>
+                                <div class="rank-badge">3</div>
+                            </li>
+                            <li draggable="true" data-candidate="4">
+                                <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                                <div class="candidate-rank-info">
+                                    <i class="fas fa-user-tie"></i>
+                                    <span>Candidate 4</span>
+                                </div>
+                                <div class="rank-badge">4</div>
+                            </li>
+                            <li draggable="true" data-candidate="5">
+                                <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                                <div class="candidate-rank-info">
+                                    <i class="fas fa-user-tie"></i>
+                                    <span>Candidate 5</span>
+                                </div>
+                                <div class="rank-badge">5</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button class="btn-primary btn-vote" onclick="castVote()">
+                        <i class="fas fa-check-circle"></i>
+                        Submit Vote
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results-section" class="results-section" style="display:none;">
+        <div class="container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <i class="fas fa-trophy icon-accent"></i>
+                    <h2>Election Results</h2>
+                </div>
+                <div class="results-content">
+                    <div class="results-header">
+                        <div class="result-meta">
+                            <span class="meta-label">System:</span>
+                            <span id="results-system" class="meta-value">Loading...</span>
+                        </div>
+                        <div class="winner-announcement" id="winner-box" style="display:none;">
+                            <i class="fas fa-crown"></i>
+                            <div>
+                                <span class="winner-label">Winner</span>
+                                <span id="results-winner" class="winner-name">—</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="results-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin/Registrar Section -->
+    <section id="admin-section" class="admin-section" style="display:none;">
+        <div class="container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <i class="fas fa-user-shield icon-accent"></i>
+                    <h2>Administration Panel</h2>
+                </div>
+                <div class="admin-content">
+                    <div id="admin-actions" class="admin-actions"></div>
+                    <div id="registrar-actions" class="registrar-actions"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display:none;">
+        <div class="loading-spinner">
+            <div class="eth-spinner">
+                <i class="fab fa-ethereum"></i>
+            </div>
+            <p>Processing transaction...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+</body>
+</html>
